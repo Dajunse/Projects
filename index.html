@@ -1,132 +1,717 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Gestión de proyectos · Offline</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-<style>
-  :root{--bg:#f8fafc;--panel:#fff;--ink:#0f172a;--muted:#475569;--border:#e2e8f0;--accent:#2563eb}
-  *{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
-  header{padding:16px 20px;border-bottom:1px solid var(--border);background:var(--panel);position:sticky;top:0;z-index:10}
-  header h1{margin:0;font-size:18px;font-weight:600}
-  .app{display:grid;grid-template-columns:2fr 1fr;gap:16px;padding:16px;max-width:1400px;margin:0 auto}
-  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px}
-  #calendar{min-height:72vh}
-  .tasks-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-  .tasks-head h2{font-size:16px;margin:0}
-  .badge{font-size:12px;padding:2px 8px;border-radius:999px;background:#eef2ff;border:1px solid #e0e7ff}
-  .task-card{border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px}
-  .task-title{display:flex;justify-content:space-between;gap:8px;font-weight:600}
-  .task-meta{display:flex;flex-wrap:wrap;gap:12px;color:var(--muted);font-size:12px;margin-top:6px}
-  .progress-bar{background:#f1f5f9;height:8px;border-radius:999px;margin-top:8px;overflow:hidden}
-  .progress-bar>span{display:block;height:100%;background:var(--accent)}
-  footer{text-align:center;color:var(--muted);font-size:12px;padding:12px 0 24px}
-  @media (max-width:960px){.app{grid-template-columns:1fr}#calendar{min-height:50vh}}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Panel de Proyectos - Versión estática</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-2: #f1f5f9;
+      --ink: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --accent: #2563eb;
+      --accent-soft: rgba(37, 99, 235, 0.12);
+      --success: #16a34a;
+      --warning: #f59e0b;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(12px);
+      background: rgba(248, 250, 252, 0.9);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 18px 20px;
+      gap: 16px;
+    }
+
+    h1 {
+      font-size: clamp(1.25rem, 2vw + 1rem, 1.65rem);
+      font-weight: 600;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-radius: 999px;
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      font-weight: 600;
+    }
+
+    .layout {
+      max-width: 1200px;
+      margin: 24px auto 80px;
+      padding: 0 20px;
+      display: grid;
+      gap: 20px;
+      grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+      align-items: start;
+    }
+
+    main {
+      display: grid;
+      gap: 20px;
+    }
+
+    section, aside {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 12px 40px rgba(15, 23, 42, 0.05);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .section-title h2 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .grid-cards {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    }
+
+    .card {
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface-2);
+      display: grid;
+      gap: 8px;
+    }
+
+    .card strong {
+      font-size: 0.95rem;
+    }
+
+    .metric {
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+
+    .progress {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.08);
+      overflow: hidden;
+    }
+
+    .progress span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), #4c1d95);
+    }
+
+    .timeline {
+      display: grid;
+      gap: 10px;
+    }
+
+    .timeline-item {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .timeline-item header {
+      border: none;
+      padding: 0;
+      position: static;
+      background: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .timeline-item h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .timeline-item .meta {
+      color: var(--muted);
+      font-size: 0.85rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      background: rgba(15, 23, 42, 0.06);
+    }
+
+    .pill.success { background: rgba(22, 163, 74, 0.12); color: var(--success); }
+    .pill.warning { background: rgba(245, 158, 11, 0.12); color: var(--warning); }
+
+    .meeting {
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      display: grid;
+      gap: 8px;
+      background: var(--surface);
+    }
+
+    .meeting strong {
+      font-size: 0.95rem;
+    }
+
+    .meeting small {
+      color: var(--muted);
+    }
+
+    aside {
+      display: grid;
+      gap: 18px;
+    }
+
+    .task-list, .note-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .task {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: var(--surface-2);
+      display: grid;
+      gap: 8px;
+    }
+
+    .task header {
+      margin: 0;
+      padding: 0;
+      border: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .task h3 {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    .task footer {
+      border: none;
+      padding: 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .note {
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: #ffffff;
+    }
+
+    footer.app-footer {
+      margin: 40px auto;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .empty {
+      padding: 30px;
+      text-align: center;
+      color: var(--muted);
+      border: 2px dashed var(--border);
+      border-radius: 16px;
+    }
+
+    .filters {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .filters button {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 14px;
+      background: #fff;
+      color: var(--muted);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .filters button.is-active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      header { position: sticky; }
+    }
+
+    @media (max-width: 640px) {
+      .top-bar { flex-direction: column; align-items: flex-start; }
+      section, aside { padding: 16px; }
+      .filters button { flex: 1 1 auto; text-align: center; }
+    }
+  </style>
 </head>
 <body>
-<header><h1>📅 Gestión de proyectos · Prototipo (offline)</h1></header>
+  <header>
+    <div class="top-bar">
+      <h1>📊 Tablero maestro de proyectos</h1>
+      <span class="badge" id="projects-count">0 proyectos activos</span>
+    </div>
+  </header>
 
-<main class="app">
-  <section class="card"><div id="calendar"></div></section>
-  <aside class="card">
-    <div class="tasks-head"><h2>Tareas asignadas</h2><span id="tasks-count" class="badge">0</span></div>
-    <div id="tasks-list"></div>
-  </aside>
-</main>
-
-<footer>Esta versión no usa fetch ni módulos. Ideal para abrir con doble clic.</footer>
-
-<!-- Datos embebidos -->
-<script id="data-projects" type="application/json">[
-  {"id":"p-1","name":"Implementación ERP","company":"Industrias Nova","budget":180000,"objective":"Centralizar procesos y unificar catálogo maestro.","documentation":"https://docs.example.com/erp","leadId":"m-1","start":"2025-09-15","end":"2025-12-20"},
-  {"id":"p-2","name":"Portal Interno SOPs","company":"Scio-Automation","budget":35000,"objective":"Crear y publicar el portal de manuales y SOPs.","documentation":"https://docs.example.com/sops","leadId":"m-2","start":"2025-09-10","end":"2025-10-31"}
-]</script>
-<script id="data-team" type="application/json">[
-  {"id":"m-1","name":"David Cortés","email":"david@example.com","role":"Project Manager"},
-  {"id":"m-2","name":"Kayla Johnson","email":"kayla@example.com","role":"Tech Lead"},
-  {"id":"m-3","name":"Marco López","email":"marco@example.com","role":"Backend Dev"},
-  {"id":"m-4","name":"Mounika I.","email":"mounika@example.com","role":"Frontend Dev"}
-]</script>
-<script id="data-tasks" type="application/json">[
-  {"id":"t-1","projectId":"p-1","assigneeId":"m-3","name":"Modelo de datos ERP","start":"2025-09-16T09:00:00","end":"2025-09-16T13:00:00","progress":60,"status":"En curso"},
-  {"id":"t-2","projectId":"p-1","assigneeId":"m-1","name":"Revisión con Compras","start":"2025-09-17T10:00:00","end":"2025-09-17T12:00:00","progress":20,"status":"Pendiente"},
-  {"id":"t-3","projectId":"p-2","assigneeId":"m-4","name":"UI de Portal SOPs","start":"2025-09-18T09:00:00","end":"2025-09-18T17:00:00","progress":45,"status":"En curso"},
-  {"id":"t-4","projectId":"p-2","assigneeId":"m-2","name":"Autenticación y roles","start":"2025-09-19T09:00:00","end":"2025-09-19T15:00:00","progress":10,"status":"Planificada"}
-]</script>
-<script id="data-meetings" type="application/json">[
-  {"id":"meet-1","projectId":"p-1","relatedTaskId":"t-1","title":"Kickoff ERP","url":"https://meet.example.com/abc123","attendees":["m-1","m-2","m-3"],"start":"2025-09-16T15:00:00","end":"2025-09-16T16:00:00","reason":"Alinear objetivos y entregables"},
-  {"id":"meet-2","projectId":"p-2","relatedTaskId":"t-3","title":"Diseño de componentes","url":"https://meet.example.com/xyz789","attendees":["m-2","m-4"],"start":"2025-09-18T11:00:00","end":"2025-09-18T12:00:00","reason":"Definir layout y tokens"}
-]</script>
-
-<!-- Lógica sin módulos -->
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
-<script>
-  const getData = (id) => JSON.parse(document.getElementById(id).textContent);
-  const projects = getData('data-projects');
-  const team     = getData('data-team');
-  const tasks    = getData('data-tasks');
-  const meetings = getData('data-meetings');
-
-  const findProject = id => projects.find(p => p.id === id);
-  const findMember  = id => team.find(m => m.id === id);
-  const fmt = (d)=>{const x=new Date(d);const hasT=d.includes("T");return new Intl.DateTimeFormat('es-MX',{dateStyle:'medium', timeStyle:hasT?'short':undefined}).format(x)};
-
-  function renderTasks(){
-    const c = document.getElementById('tasks-list'); c.innerHTML='';
-    tasks.forEach(t=>{
-      const p=findProject(t.projectId), a=findMember(t.assigneeId);
-      const el=document.createElement('article'); el.className='task-card';
-      el.innerHTML=`
-        <div class="task-title">
-          <span>${t.name}</span><span class="badge">${t.status??'—'}</span>
+  <div class="layout">
+    <main>
+      <section>
+        <div class="section-title">
+          <h2>Resumen ejecutivo</h2>
+          <div class="filters" id="project-filter"></div>
         </div>
-        <div class="task-meta">
-          <span>📁 ${p?.name??'Proyecto'}</span>
-          <span>👤 ${a?.name??'Sin asignar'}</span>
-          <span>🕒 ${fmt(t.start)} - ${fmt(t.end)}</span>
+        <div class="grid-cards" id="summary"></div>
+      </section>
+
+      <section>
+        <div class="section-title">
+          <h2>Calendario y jalones</h2>
+          <span class="badge" id="milestones-count"></span>
         </div>
-        <div class="progress-bar"><span style="width:${t.progress??0}%"></span></div>`;
-      c.appendChild(el);
-    });
-    document.getElementById('tasks-count').textContent = `${tasks.length} tareas`;
-  }
+        <div class="timeline" id="milestones"></div>
+      </section>
 
-  function events(){
-    const tEvents = tasks.map(t=>{
-      const a=findMember(t.assigneeId), p=findProject(t.projectId);
-      return { id:t.id, title:`${t.name} • ${a?.name??'Sin asignar'}`, start:t.start, end:t.end,
-               backgroundColor:'#3b82f6', borderColor:'#1d4ed8',
-               extendedProps:{type:'task', project:p?.name??'Proyecto', status:t.status}};
-    });
-    const mEvents = meetings.map(m=>{
-      const p=findProject(m.projectId);
-      return { id:m.id, title:`📞 ${m.title}`, start:m.start, end:m.end,
-               backgroundColor:'#6366f1', borderColor:'#4338ca',
-               extendedProps:{type:'meeting', project:p?.name??'Proyecto',
-                              attendees:m.attendees.map(id=>findMember(id)?.name??'').join(', ')},
-               url:m.url};
-    });
-    return [...tEvents, ...mEvents];
-  }
+      <section>
+        <div class="section-title">
+          <h2>Próximas reuniones</h2>
+          <span class="badge" id="meetings-count"></span>
+        </div>
+        <div class="timeline" id="meetings"></div>
+      </section>
+    </main>
 
-  function renderCalendar(){
-    const el=document.getElementById('calendar');
-    const cal=new FullCalendar.Calendar(el,{
-      initialView:'timeGridWeek',
-      headerToolbar:{left:'prev,next today',center:'title',right:'dayGridMonth,timeGridWeek,listWeek'},
-      locale:'es', height:'auto', slotMinTime:'07:00:00', slotMaxTime:'20:00:00',
-      eventTimeFormat:{hour:'2-digit',minute:'2-digit',hour12:false},
-      events: events(),
-      eventClick: info=>{ if(info.event.url){ info.jsEvent.preventDefault(); window.open(info.event.url,'_blank'); } }
-    });
-    cal.render();
-  }
+    <aside>
+      <section>
+        <div class="section-title">
+          <h2>Tareas pendientes</h2>
+          <span class="badge" id="tasks-count"></span>
+        </div>
+        <div class="task-list" id="tasks"></div>
+      </section>
 
-  renderTasks(); renderCalendar();
-</script>
+      <section>
+        <div class="section-title">
+          <h2>Notas rápidas</h2>
+        </div>
+        <div class="note-list" id="notes"></div>
+      </section>
+    </aside>
+  </div>
+
+  <footer class="app-footer">
+    Versionado estático sin dependencias externas. Ideal para abrir en modo local/offline.
+  </footer>
+
+  <script id="data" type="application/json">
+    {
+      "projects": [
+        {
+          "id": "px-01",
+          "nombre": "Implementación ERP Nova",
+          "lider": "Mariana Torres",
+          "avance": 0.64,
+          "inicio": "2025-08-25",
+          "entrega": "2025-12-15",
+          "presupuesto": 180000,
+          "riesgo": "medio"
+        },
+        {
+          "id": "px-02",
+          "nombre": "Portal SOPs",
+          "lider": "Emilio Vargas",
+          "avance": 0.42,
+          "inicio": "2025-09-04",
+          "entrega": "2025-11-20",
+          "presupuesto": 42000,
+          "riesgo": "alto"
+        },
+        {
+          "id": "px-03",
+          "nombre": "Modernización BI",
+          "lider": "Laura Méndez",
+          "avance": 0.78,
+          "inicio": "2025-07-10",
+          "entrega": "2025-10-30",
+          "presupuesto": 98000,
+          "riesgo": "bajo"
+        }
+      ],
+      "tareas": [
+        {
+          "id": "tx-1",
+          "projectId": "px-01",
+          "nombre": "Migración maestros a entorno QA",
+          "responsable": "Diego Chávez",
+          "inicio": "2025-09-16T09:00:00",
+          "fin": "2025-09-16T17:00:00",
+          "avance": 0.45,
+          "estado": "En curso"
+        },
+        {
+          "id": "tx-2",
+          "projectId": "px-02",
+          "nombre": "Definir arquitectura de contenidos",
+          "responsable": "Silvia Reyes",
+          "inicio": "2025-09-17T10:30:00",
+          "fin": "2025-09-17T16:00:00",
+          "avance": 0.2,
+          "estado": "Pendiente"
+        },
+        {
+          "id": "tx-3",
+          "projectId": "px-03",
+          "nombre": "Pruebas de regresión del dashboard",
+          "responsable": "Rafael Solís",
+          "inicio": "2025-09-18T09:00:00",
+          "fin": "2025-09-18T12:00:00",
+          "avance": 0.9,
+          "estado": "Por cerrar"
+        }
+      ],
+      "hitos": [
+        {
+          "id": "mx-1",
+          "projectId": "px-01",
+          "titulo": "Liberación módulo inventarios",
+          "fecha": "2025-09-25",
+          "descripcion": "Validación conjunta con el equipo de operaciones.",
+          "critico": true
+        },
+        {
+          "id": "mx-2",
+          "projectId": "px-02",
+          "titulo": "Entrega prototipo navegable",
+          "fecha": "2025-10-05",
+          "descripcion": "Revisión con stakeholders de servicio interno.",
+          "critico": false
+        },
+        {
+          "id": "mx-3",
+          "projectId": "px-03",
+          "titulo": "Capacitación analistas regionales",
+          "fecha": "2025-09-29",
+          "descripcion": "Sesión remota para mostrar nuevas vistas.",
+          "critico": false
+        }
+      ],
+      "reuniones": [
+        {
+          "id": "rx-1",
+          "projectId": "px-01",
+          "titulo": "Kickoff cadena de suministro",
+          "enlace": "https://meet.example.com/erp",
+          "inicio": "2025-09-19T10:00:00",
+          "fin": "2025-09-19T11:00:00",
+          "participantes": ["Mariana", "Diego", "Compras"],
+          "proposito": "Alinear actividades de migración y pruebas."
+        },
+        {
+          "id": "rx-2",
+          "projectId": "px-02",
+          "titulo": "Revisión UI + tokens",
+          "enlace": "https://meet.example.com/sops",
+          "inicio": "2025-09-20T09:30:00",
+          "fin": "2025-09-20T10:15:00",
+          "participantes": ["Emilio", "Silvia", "UX"],
+          "proposito": "Definir lineamientos de contenidos y componentes."
+        },
+        {
+          "id": "rx-3",
+          "projectId": "px-03",
+          "titulo": "Reporte ejecutivo",
+          "enlace": "https://meet.example.com/bi",
+          "inicio": "2025-09-21T12:00:00",
+          "fin": "2025-09-21T12:45:00",
+          "participantes": ["Laura", "Finanzas", "BI"],
+          "proposito": "Presentar indicadores de adopción y roadmap."
+        }
+      ],
+      "notas": [
+        {
+          "id": "nx-1",
+          "texto": "Validar riesgos de soporte post-go-live con mesa de ayuda.",
+          "autor": "Mariana"
+        },
+        {
+          "id": "nx-2",
+          "texto": "Solicitar cotización actualizada de licenciamiento BI.",
+          "autor": "Laura"
+        }
+      ]
+    }
+  </script>
+
+  <script>
+    const data = JSON.parse(document.getElementById('data').textContent);
+    const formatCurrency = value => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(value);
+    const formatDate = iso => new Intl.DateTimeFormat('es-MX', { dateStyle: 'medium', timeStyle: iso.includes('T') ? 'short' : undefined }).format(new Date(iso));
+
+    const projects = data.projects;
+    const tasks = data.tareas;
+    const milestones = data.hitos;
+    const meetings = data.reuniones;
+    const notes = data.notas;
+
+    const state = {
+      selectedProject: 'all'
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    function renderBadges() {
+      $('projects-count').textContent = `${projects.length} proyectos activos`;
+      $('tasks-count').textContent = `${tasks.length} tareas`; 
+      $('milestones-count').textContent = `${milestones.length} jalones`; 
+      $('meetings-count').textContent = `${meetings.length} reuniones`;
+    }
+
+    function renderFilter() {
+      const wrapper = $('project-filter');
+      wrapper.innerHTML = '';
+      const options = [{ id: 'all', nombre: 'Todo' }, ...projects];
+      options.forEach(opt => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = opt.nombre || 'Todo';
+        button.className = state.selectedProject === opt.id ? 'is-active' : '';
+        button.addEventListener('click', () => {
+          state.selectedProject = opt.id;
+          renderAll();
+        });
+        wrapper.appendChild(button);
+      });
+    }
+
+    function filterByProject(collection) {
+      if (state.selectedProject === 'all') return collection;
+      return collection.filter(item => item.projectId === state.selectedProject);
+    }
+
+    function renderSummary() {
+      const container = $('summary');
+      container.innerHTML = '';
+
+      const filtered = filterByProject(projects);
+      const budget = filtered.reduce((sum, project) => sum + project.presupuesto, 0);
+      const avgProgress = filtered.reduce((sum, project) => sum + project.avance, 0) / (filtered.length || 1);
+      const critical = filterByProject(milestones).filter(m => m.critico).length;
+
+      const cards = [
+        {
+          label: 'Inversión comprometida',
+          value: formatCurrency(budget),
+          description: 'Presupuesto total asociado a los proyectos filtrados.'
+        },
+        {
+          label: 'Avance promedio',
+          value: `${Math.round(avgProgress * 100)}%`,
+          description: 'Porcentaje promedio de avance reportado por los equipos.'
+        },
+        {
+          label: 'Hitos críticos',
+          value: critical,
+          description: 'Eventos marcados como críticos dentro de los próximos 30 días.'
+        },
+        {
+          label: 'Personas líderes',
+          value: new Set(filtered.map(p => p.lider)).size,
+          description: 'Responsables directos de la entrega de cada iniciativa.'
+        }
+      ];
+
+      cards.forEach(card => {
+        const el = document.createElement('article');
+        el.className = 'card';
+        el.innerHTML = `
+          <strong>${card.label}</strong>
+          <span class="metric">${card.value}</span>
+          <p style="margin:0;color:var(--muted);font-size:0.8rem;">${card.description}</p>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    function renderMilestones() {
+      const container = $('milestones');
+      container.innerHTML = '';
+      const items = filterByProject(milestones)
+        .sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+
+      if (!items.length) {
+        container.innerHTML = '<div class="empty">Sin jalones para el proyecto seleccionado.</div>';
+        return;
+      }
+
+      items.forEach(item => {
+        const project = projects.find(p => p.id === item.projectId);
+        const el = document.createElement('article');
+        el.className = 'timeline-item';
+        el.innerHTML = `
+          <header>
+            <h3>${item.titulo}</h3>
+            <span class="pill ${item.critico ? 'warning' : ''}">${item.critico ? 'Crítico' : 'Seguimiento'}</span>
+          </header>
+          <div class="meta">
+            <span>📆 ${formatDate(item.fecha)}</span>
+            <span>📁 ${project?.nombre ?? 'Proyecto'}</span>
+          </div>
+          <p style="margin:0;color:var(--muted);font-size:0.85rem;">${item.descripcion}</p>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    function renderMeetings() {
+      const container = $('meetings');
+      container.innerHTML = '';
+      const items = filterByProject(meetings)
+        .sort((a, b) => new Date(a.inicio) - new Date(b.inicio));
+
+      if (!items.length) {
+        container.innerHTML = '<div class="empty">No hay reuniones próximas.</div>';
+        return;
+      }
+
+      items.forEach(item => {
+        const project = projects.find(p => p.id === item.projectId);
+        const el = document.createElement('article');
+        el.className = 'meeting';
+        el.innerHTML = `
+          <strong>${item.titulo}</strong>
+          <small>${formatDate(item.inicio)} · ${project?.nombre ?? 'Proyecto'}</small>
+          <p style="margin:0;color:var(--muted);font-size:0.85rem;">${item.proposito}</p>
+          <small>Participantes: ${item.participantes.join(', ')}</small>
+          <a href="${item.enlace}" target="_blank" rel="noopener" style="font-size:0.8rem;color:var(--accent);">Abrir invitación</a>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    function renderTasks() {
+      const container = $('tasks');
+      container.innerHTML = '';
+      const items = filterByProject(tasks)
+        .sort((a, b) => new Date(a.inicio) - new Date(b.inicio));
+
+      if (!items.length) {
+        container.innerHTML = '<div class="empty">No se encontraron tareas.</div>';
+        return;
+      }
+
+      items.forEach(item => {
+        const project = projects.find(p => p.id === item.projectId);
+        const el = document.createElement('article');
+        el.className = 'task';
+        el.innerHTML = `
+          <header>
+            <h3>${item.nombre}</h3>
+            <span class="pill">${item.estado}</span>
+          </header>
+          <div class="progress">
+            <span style="width:${Math.round(item.avance * 100)}%"></span>
+          </div>
+          <p style="margin:0;color:var(--muted);font-size:0.82rem;">${project?.nombre ?? 'Proyecto'} · ${item.responsable}</p>
+          <footer>
+            ${formatDate(item.inicio)} &mdash; ${formatDate(item.fin)}
+          </footer>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    function renderNotes() {
+      const container = $('notes');
+      container.innerHTML = '';
+
+      if (!notes.length) {
+        container.innerHTML = '<div class="empty">Sin notas registradas.</div>';
+        return;
+      }
+
+      notes.forEach(note => {
+        const el = document.createElement('article');
+        el.className = 'note';
+        el.innerHTML = `
+          <p style="margin:0 0 6px 0;font-size:0.9rem;line-height:1.5;">${note.texto}</p>
+          <small style="color:var(--muted);">— ${note.autor}</small>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    function renderAll() {
+      renderBadges();
+      renderFilter();
+      renderSummary();
+      renderMilestones();
+      renderMeetings();
+      renderTasks();
+      renderNotes();
+    }
+
+    renderAll();
+  </script>
 </body>
 </html>
