@@ -1,798 +1,132 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gestión de Proyectos</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet" />
-  <style>
-    :root {
-      color-scheme: light dark;
-      --color-bg: #f5f7fb;
-      --color-surface: #ffffff;
-      --color-border: #dbe1f1;
-      --color-text: #1f2937;
-      --color-muted: #6b7280;
-      --color-primary: #3b82f6;
-      --color-secondary: #6366f1;
-      --color-success: #22c55e;
-      --color-warning: #f59e0b;
-      --color-danger: #ef4444;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--color-bg);
-      color: var(--color-text);
-      line-height: 1.5;
-    }
-
-    header {
-      padding: 2rem 3vw 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: clamp(1.75rem, 2.5vw, 2.5rem);
-      font-weight: 700;
-    }
-
-    header p {
-      margin: 0;
-      color: var(--color-muted);
-      max-width: 720px;
-    }
-
-    main {
-      display: flex;
-      gap: 1.5rem;
-      padding: 0 3vw 2rem;
-      flex-wrap: wrap;
-    }
-
-    .panel {
-      background: var(--color-surface);
-      border-radius: 1.25rem;
-      box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
-      padding: 1.5rem;
-      border: 1px solid var(--color-border);
-      backdrop-filter: blur(16px);
-    }
-
-    #calendar-panel {
-      flex: 2;
-      min-width: min(640px, 100%);
-    }
-
-    #tasks-panel {
-      flex: 1;
-      min-width: min(360px, 100%);
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    #calendar {
-      width: 100%;
-      background: transparent;
-    }
-
-    .panel-title {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-    }
-
-    .panel-title h2 {
-      margin: 0;
-      font-size: 1.25rem;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      font-size: 0.75rem;
-      padding: 0.35rem 0.65rem;
-      border-radius: 999px;
-      background: rgba(99, 102, 241, 0.12);
-      color: var(--color-secondary);
-      font-weight: 600;
-    }
-
-    .task-card {
-      border: 1px solid var(--color-border);
-      border-radius: 1rem;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.65rem;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      background: rgba(255, 255, 255, 0.9);
-    }
-
-    .task-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
-    }
-
-    .task-title {
-      font-weight: 600;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .task-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      color: var(--color-muted);
-      font-size: 0.85rem;
-    }
-
-    .task-meta span {
-      display: inline-flex;
-      gap: 0.35rem;
-      align-items: center;
-    }
-
-    .progress-bar {
-      height: 6px;
-      border-radius: 999px;
-      background: rgba(148, 163, 184, 0.3);
-      overflow: hidden;
-    }
-
-    .progress-bar span {
-      display: block;
-      height: 100%;
-      border-radius: inherit;
-      background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
-    }
-
-    section {
-      padding: 0 3vw 2.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    section h2 {
-      margin: 0;
-      font-size: 1.5rem;
-    }
-
-    .timeline {
-      display: grid;
-      gap: 1rem;
-    }
-
-    .timeline-row {
-      background: var(--color-surface);
-      border: 1px solid var(--color-border);
-      border-radius: 1rem;
-      padding: 1rem;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-    }
-
-    .timeline-row h3 {
-      margin: 0 0 0.5rem;
-      font-size: 1.1rem;
-    }
-
-    .timeline-track {
-      position: relative;
-      background: rgba(148, 163, 184, 0.2);
-      border-radius: 999px;
-      height: 16px;
-      overflow: hidden;
-    }
-
-    .timeline-segment {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      border-radius: 999px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.7rem;
-      color: white;
-      white-space: nowrap;
-      padding: 0 0.5rem;
-    }
-
-    .legend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      font-size: 0.85rem;
-      color: var(--color-muted);
-    }
-
-    .legend span::before {
-      content: "";
-      display: inline-block;
-      width: 0.75rem;
-      height: 0.75rem;
-      border-radius: 0.25rem;
-      margin-right: 0.35rem;
-      vertical-align: middle;
-    }
-
-    .legend span[data-status="working"]::before { background: var(--color-primary); }
-    .legend span[data-status="resting"]::before { background: var(--color-muted); }
-    .legend span[data-status="meeting"]::before { background: var(--color-secondary); }
-    .legend span[data-status="vacaciones"]::before { background: #0ea5e9; }
-    .legend span[data-status="comida"]::before { background: var(--color-warning); }
-    .legend span[data-status="office"]::before { background: #0f172a; }
-    .legend span[data-status="permiso"]::before { background: #f43f5e; }
-
-    .status-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1rem;
-    }
-
-    .status-card {
-      border-radius: 1rem;
-      padding: 1rem;
-      background: var(--color-surface);
-      border: 1px solid var(--color-border);
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-    }
-
-    .status-card strong {
-      font-size: 1rem;
-    }
-
-    .status-chip {
-      align-self: flex-start;
-      padding: 0.35rem 0.65rem;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: capitalize;
-      color: #fff;
-    }
-
-    .agenda-table {
-      width: 100%;
-      border-collapse: collapse;
-      background: var(--color-surface);
-      border-radius: 1rem;
-      overflow: hidden;
-      border: 1px solid var(--color-border);
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-    }
-
-    .agenda-table thead {
-      background: rgba(99, 102, 241, 0.08);
-    }
-
-    .agenda-table th,
-    .agenda-table td {
-      padding: 0.85rem 1rem;
-      text-align: left;
-      font-size: 0.9rem;
-    }
-
-    .agenda-table tbody tr:nth-child(odd) {
-      background: rgba(148, 163, 184, 0.08);
-    }
-
-    .conflict {
-      color: var(--color-danger);
-      font-weight: 600;
-    }
-
-    footer {
-      padding: 2rem 3vw 3rem;
-      color: var(--color-muted);
-      font-size: 0.85rem;
-    }
-
-    @media (max-width: 960px) {
-      main {
-        flex-direction: column;
-      }
-
-      #calendar-panel,
-      #tasks-panel {
-        min-width: 100%;
-      }
-    }
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Gestión de proyectos · Offline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#f8fafc;--panel:#fff;--ink:#0f172a;--muted:#475569;--border:#e2e8f0;--accent:#2563eb}
+  *{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+  header{padding:16px 20px;border-bottom:1px solid var(--border);background:var(--panel);position:sticky;top:0;z-index:10}
+  header h1{margin:0;font-size:18px;font-weight:600}
+  .app{display:grid;grid-template-columns:2fr 1fr;gap:16px;padding:16px;max-width:1400px;margin:0 auto}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px}
+  #calendar{min-height:72vh}
+  .tasks-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .tasks-head h2{font-size:16px;margin:0}
+  .badge{font-size:12px;padding:2px 8px;border-radius:999px;background:#eef2ff;border:1px solid #e0e7ff}
+  .task-card{border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px}
+  .task-title{display:flex;justify-content:space-between;gap:8px;font-weight:600}
+  .task-meta{display:flex;flex-wrap:wrap;gap:12px;color:var(--muted);font-size:12px;margin-top:6px}
+  .progress-bar{background:#f1f5f9;height:8px;border-radius:999px;margin-top:8px;overflow:hidden}
+  .progress-bar>span{display:block;height:100%;background:var(--accent)}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:12px 0 24px}
+  @media (max-width:960px){.app{grid-template-columns:1fr}#calendar{min-height:50vh}}
+</style>
 </head>
 <body>
-  <header>
-    <h1>Panel Maestro de Gestión de Proyectos</h1>
-    <p>Visualiza proyectos, tareas, reuniones y la disponibilidad del equipo en un solo lugar. Esta maqueta está pensada para una implementación rápida en GitHub Pages como vista previa del sistema.</p>
-  </header>
+<header><h1>📅 Gestión de proyectos · Prototipo (offline)</h1></header>
 
-  <main>
-    <section id="calendar-panel" class="panel">
-      <div class="panel-title">
-        <h2>Calendario de Actividades</h2>
-        <span class="badge">Agenda integrada</span>
-      </div>
-      <div id="calendar"></div>
-    </section>
+<main class="app">
+  <section class="card"><div id="calendar"></div></section>
+  <aside class="card">
+    <div class="tasks-head"><h2>Tareas asignadas</h2><span id="tasks-count" class="badge">0</span></div>
+    <div id="tasks-list"></div>
+  </aside>
+</main>
 
-    <aside id="tasks-panel" class="panel">
-      <div class="panel-title">
-        <h2>Tareas Asignadas</h2>
-        <span class="badge" id="tasks-count">0 tareas</span>
-      </div>
-      <div id="tasks-list"></div>
-    </aside>
-  </main>
+<footer>Esta versión no usa fetch ni módulos. Ideal para abrir con doble clic.</footer>
 
-  <section>
-    <div class="panel-title">
-      <h2>Cronograma por proyecto</h2>
-      <span class="badge">Vista de línea de tiempo</span>
-    </div>
-    <div class="timeline" id="timeline"></div>
-  </section>
+<!-- Datos embebidos -->
+<script id="data-projects" type="application/json">[
+  {"id":"p-1","name":"Implementación ERP","company":"Industrias Nova","budget":180000,"objective":"Centralizar procesos y unificar catálogo maestro.","documentation":"https://docs.example.com/erp","leadId":"m-1","start":"2025-09-15","end":"2025-12-20"},
+  {"id":"p-2","name":"Portal Interno SOPs","company":"Scio-Automation","budget":35000,"objective":"Crear y publicar el portal de manuales y SOPs.","documentation":"https://docs.example.com/sops","leadId":"m-2","start":"2025-09-10","end":"2025-10-31"}
+]</script>
+<script id="data-team" type="application/json">[
+  {"id":"m-1","name":"David Cortés","email":"david@example.com","role":"Project Manager"},
+  {"id":"m-2","name":"Kayla Johnson","email":"kayla@example.com","role":"Tech Lead"},
+  {"id":"m-3","name":"Marco López","email":"marco@example.com","role":"Backend Dev"},
+  {"id":"m-4","name":"Mounika I.","email":"mounika@example.com","role":"Frontend Dev"}
+]</script>
+<script id="data-tasks" type="application/json">[
+  {"id":"t-1","projectId":"p-1","assigneeId":"m-3","name":"Modelo de datos ERP","start":"2025-09-16T09:00:00","end":"2025-09-16T13:00:00","progress":60,"status":"En curso"},
+  {"id":"t-2","projectId":"p-1","assigneeId":"m-1","name":"Revisión con Compras","start":"2025-09-17T10:00:00","end":"2025-09-17T12:00:00","progress":20,"status":"Pendiente"},
+  {"id":"t-3","projectId":"p-2","assigneeId":"m-4","name":"UI de Portal SOPs","start":"2025-09-18T09:00:00","end":"2025-09-18T17:00:00","progress":45,"status":"En curso"},
+  {"id":"t-4","projectId":"p-2","assigneeId":"m-2","name":"Autenticación y roles","start":"2025-09-19T09:00:00","end":"2025-09-19T15:00:00","progress":10,"status":"Planificada"}
+]</script>
+<script id="data-meetings" type="application/json">[
+  {"id":"meet-1","projectId":"p-1","relatedTaskId":"t-1","title":"Kickoff ERP","url":"https://meet.example.com/abc123","attendees":["m-1","m-2","m-3"],"start":"2025-09-16T15:00:00","end":"2025-09-16T16:00:00","reason":"Alinear objetivos y entregables"},
+  {"id":"meet-2","projectId":"p-2","relatedTaskId":"t-3","title":"Diseño de componentes","url":"https://meet.example.com/xyz789","attendees":["m-2","m-4"],"start":"2025-09-18T11:00:00","end":"2025-09-18T12:00:00","reason":"Definir layout y tokens"}
+]</script>
 
-  <section>
-    <div class="panel-title">
-      <h2>Estado del equipo</h2>
-      <div class="legend">
-        <span data-status="working">Trabajando</span>
-        <span data-status="meeting">En reunión</span>
-        <span data-status="resting">Descansando</span>
-        <span data-status="vacaciones">Vacaciones</span>
-        <span data-status="comida">Comida</span>
-        <span data-status="office">Fuera de oficina</span>
-        <span data-status="permiso">Permiso</span>
-      </div>
-    </div>
-    <div class="status-grid" id="status-grid"></div>
-  </section>
+<!-- Lógica sin módulos -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+<script>
+  const getData = (id) => JSON.parse(document.getElementById(id).textContent);
+  const projects = getData('data-projects');
+  const team     = getData('data-team');
+  const tasks    = getData('data-tasks');
+  const meetings = getData('data-meetings');
 
-  <section>
-    <div class="panel-title">
-      <h2>Conflictos de agenda</h2>
-      <span class="badge">Revisa empalmes potenciales</span>
-    </div>
-    <table class="agenda-table">
-      <thead>
-        <tr>
-          <th>Miembro</th>
-          <th>Elemento</th>
-          <th>Inicio</th>
-          <th>Fin</th>
-          <th>Conflicto</th>
-        </tr>
-      </thead>
-      <tbody id="agenda-conflicts"></tbody>
-    </table>
-  </section>
+  const findProject = id => projects.find(p => p.id === id);
+  const findMember  = id => team.find(m => m.id === id);
+  const fmt = (d)=>{const x=new Date(d);const hasT=d.includes("T");return new Intl.DateTimeFormat('es-MX',{dateStyle:'medium', timeStyle:hasT?'short':undefined}).format(x)};
 
-  <footer>
-    Prototipo interactivo desarrollado con FullCalendar y componentes CSS ligeros. Personaliza los datos en el script para conectarlo a tu propia API o base de datos.
-  </footer>
+  function renderTasks(){
+    const c = document.getElementById('tasks-list'); c.innerHTML='';
+    tasks.forEach(t=>{
+      const p=findProject(t.projectId), a=findMember(t.assigneeId);
+      const el=document.createElement('article'); el.className='task-card';
+      el.innerHTML=`
+        <div class="task-title">
+          <span>${t.name}</span><span class="badge">${t.status??'—'}</span>
+        </div>
+        <div class="task-meta">
+          <span>📁 ${p?.name??'Proyecto'}</span>
+          <span>👤 ${a?.name??'Sin asignar'}</span>
+          <span>🕒 ${fmt(t.start)} - ${fmt(t.end)}</span>
+        </div>
+        <div class="progress-bar"><span style="width:${t.progress??0}%"></span></div>`;
+      c.appendChild(el);
+    });
+    document.getElementById('tasks-count').textContent = `${tasks.length} tareas`;
+  }
 
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
-  <script>
-    const projects = [
-      {
-        id: 'p-1',
-        name: 'Implementación ERP',
-        company: 'Industrias Nova',
-        budget: 180000,
-        objective: 'Centralizar procesos financieros y logísticos',
-        documentation: 'https://docs.example.com/erp',
-        leadId: 'm-1',
-        start: '2024-05-06',
-        end: '2024-08-16'
-      },
-      {
-        id: 'p-2',
-        name: 'Lanzamiento App Móvil',
-        company: 'RetailOne',
-        budget: 92000,
-        objective: 'Publicar MVP en tiendas en 12 semanas',
-        documentation: 'https://docs.example.com/mobile-app',
-        leadId: 'm-3',
-        start: '2024-04-22',
-        end: '2024-07-12'
-      }
-    ];
+  function events(){
+    const tEvents = tasks.map(t=>{
+      const a=findMember(t.assigneeId), p=findProject(t.projectId);
+      return { id:t.id, title:`${t.name} • ${a?.name??'Sin asignar'}`, start:t.start, end:t.end,
+               backgroundColor:'#3b82f6', borderColor:'#1d4ed8',
+               extendedProps:{type:'task', project:p?.name??'Proyecto', status:t.status}};
+    });
+    const mEvents = meetings.map(m=>{
+      const p=findProject(m.projectId);
+      return { id:m.id, title:`📞 ${m.title}`, start:m.start, end:m.end,
+               backgroundColor:'#6366f1', borderColor:'#4338ca',
+               extendedProps:{type:'meeting', project:p?.name??'Proyecto',
+                              attendees:m.attendees.map(id=>findMember(id)?.name??'').join(', ')},
+               url:m.url};
+    });
+    return [...tEvents, ...mEvents];
+  }
 
-    const teamMembers = [
-      { id: 'm-1', name: 'Laura Méndez', email: 'laura@nova.mx', role: 'Project Manager' },
-      { id: 'm-2', name: 'Carlos Díaz', email: 'carlos@nova.mx', role: 'Analista de Datos' },
-      { id: 'm-3', name: 'Ana Ríos', email: 'ana@nova.mx', role: 'Líder de Desarrollo' },
-      { id: 'm-4', name: 'Jorge Castillo', email: 'jorge@nova.mx', role: 'QA Engineer' }
-    ];
+  function renderCalendar(){
+    const el=document.getElementById('calendar');
+    const cal=new FullCalendar.Calendar(el,{
+      initialView:'timeGridWeek',
+      headerToolbar:{left:'prev,next today',center:'title',right:'dayGridMonth,timeGridWeek,listWeek'},
+      locale:'es', height:'auto', slotMinTime:'07:00:00', slotMaxTime:'20:00:00',
+      eventTimeFormat:{hour:'2-digit',minute:'2-digit',hour12:false},
+      events: events(),
+      eventClick: info=>{ if(info.event.url){ info.jsEvent.preventDefault(); window.open(info.event.url,'_blank'); } }
+    });
+    cal.render();
+  }
 
-    const tasks = [
-      {
-        id: 't-1',
-        name: 'Mapeo de procesos actuales',
-        projectId: 'p-1',
-        assigneeId: 'm-2',
-        start: '2024-05-06T09:00:00',
-        end: '2024-05-10T17:00:00',
-        progress: 80,
-        status: 'En revisión'
-      },
-      {
-        id: 't-2',
-        name: 'Configuración módulos contables',
-        projectId: 'p-1',
-        assigneeId: 'm-1',
-        start: '2024-05-13T09:30:00',
-        end: '2024-05-24T18:00:00',
-        progress: 45,
-        status: 'En progreso'
-      },
-      {
-        id: 't-3',
-        name: 'Diseño experiencia móvil',
-        projectId: 'p-2',
-        assigneeId: 'm-3',
-        start: '2024-05-08T10:00:00',
-        end: '2024-05-15T17:00:00',
-        progress: 65,
-        status: 'Validación UX'
-      },
-      {
-        id: 't-4',
-        name: 'Plan pruebas automatizadas',
-        projectId: 'p-2',
-        assigneeId: 'm-4',
-        start: '2024-05-16T09:00:00',
-        end: '2024-05-24T15:00:00',
-        progress: 20,
-        status: 'Pendiente'
-      }
-    ];
-
-    const meetings = [
-      {
-        id: 'r-1',
-        title: 'Kickoff con finanzas',
-        projectId: 'p-1',
-        relatedTaskId: 't-1',
-        attendees: ['m-1', 'm-2'],
-        start: '2024-05-06T11:00:00',
-        end: '2024-05-06T12:00:00',
-        reason: 'Alinear entregables iniciales',
-        url: 'https://meet.example.com/erp'
-      },
-      {
-        id: 'r-2',
-        title: 'Revisión de wireframes',
-        projectId: 'p-2',
-        relatedTaskId: 't-3',
-        attendees: ['m-1', 'm-3'],
-        start: '2024-05-09T16:00:00',
-        end: '2024-05-09T17:00:00',
-        reason: 'Feedback stakeholders retail',
-        url: 'https://meet.example.com/mobile'
-      },
-      {
-        id: 'r-3',
-        title: 'Sync QA semanal',
-        projectId: 'p-2',
-        relatedTaskId: 't-4',
-        attendees: ['m-3', 'm-4'],
-        start: '2024-05-16T09:30:00',
-        end: '2024-05-16T10:30:00',
-        reason: 'Definir matrices de prueba',
-        url: 'https://meet.example.com/qa'
-      }
-    ];
-
-    const memberStatus = [
-      { memberId: 'm-1', status: 'working', note: 'Configurando módulos contables', until: '17:30' },
-      { memberId: 'm-2', status: 'meeting', note: 'Reunión con finanzas', until: '12:00' },
-      { memberId: 'm-3', status: 'working', note: 'Revisión de wireframes', until: '18:00' },
-      { memberId: 'm-4', status: 'resting', note: 'Break programado', until: '15:00' }
-    ];
-
-    const statusColors = {
-      working: 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))',
-      meeting: 'var(--color-secondary)',
-      resting: 'var(--color-muted)',
-      vacaciones: '#0ea5e9',
-      comida: 'var(--color-warning)',
-      office: '#0f172a',
-      permiso: '#f43f5e'
-    };
-
-    function formatDate(date) {
-      return new Intl.DateTimeFormat('es-MX', {
-        dateStyle: 'medium',
-        timeStyle: 'short'
-      }).format(new Date(date));
-    }
-
-    function findProject(projectId) {
-      return projects.find(project => project.id === projectId);
-    }
-
-    function findMember(memberId) {
-      return teamMembers.find(member => member.id === memberId);
-    }
-
-    function renderTasks() {
-      const container = document.getElementById('tasks-list');
-      container.innerHTML = '';
-      tasks.forEach(task => {
-        const project = findProject(task.projectId);
-        const assignee = findMember(task.assigneeId);
-        const card = document.createElement('article');
-        card.className = 'task-card';
-        card.innerHTML = `
-          <div class="task-title">
-            <span>${task.name}</span>
-            <span class="badge">${task.status}</span>
-          </div>
-          <div class="task-meta">
-            <span>📁 ${project?.name ?? 'Proyecto'}</span>
-            <span>👤 ${assignee?.name ?? 'Sin asignar'}</span>
-            <span>🕒 ${formatDate(task.start)} - ${formatDate(task.end)}</span>
-          </div>
-          <div class="progress-bar">
-            <span style="width: ${task.progress}%"></span>
-          </div>
-        `;
-        container.appendChild(card);
-      });
-      document.getElementById('tasks-count').textContent = `${tasks.length} tareas`;
-    }
-
-    function buildCalendarEvents() {
-      const taskEvents = tasks.map(task => {
-        const assignee = findMember(task.assigneeId);
-        const project = findProject(task.projectId);
-        return {
-          id: task.id,
-          title: `${task.name} • ${assignee?.name ?? 'Sin asignar'}`,
-          start: task.start,
-          end: task.end,
-          backgroundColor: '#3b82f6',
-          borderColor: '#1d4ed8',
-          extendedProps: {
-            type: 'task',
-            project: project?.name ?? 'Proyecto',
-            status: task.status
-          }
-        };
-      });
-
-      const meetingEvents = meetings.map(meeting => {
-        const project = findProject(meeting.projectId);
-        return {
-          id: meeting.id,
-          title: `📞 ${meeting.title}`,
-          start: meeting.start,
-          end: meeting.end,
-          backgroundColor: '#6366f1',
-          borderColor: '#4338ca',
-          extendedProps: {
-            type: 'meeting',
-            project: project?.name ?? 'Proyecto',
-            attendees: meeting.attendees.map(findMember).map(m => m?.name ?? '').join(', ')
-          },
-          url: meeting.url
-        };
-      });
-
-      return [...taskEvents, ...meetingEvents];
-    }
-
-    function renderCalendar() {
-      const calendarEl = document.getElementById('calendar');
-      const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'timeGridWeek',
-        headerToolbar: {
-          left: 'prev,next today',
-          center: 'title',
-          right: 'dayGridMonth,timeGridWeek,listWeek'
-        },
-        locale: 'es',
-        height: 'auto',
-        slotMinTime: '07:00:00',
-        slotMaxTime: '20:00:00',
-        eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
-        events: buildCalendarEvents(),
-        eventClick: info => {
-          if (info.event.url) {
-            info.jsEvent.preventDefault();
-            window.open(info.event.url, '_blank');
-          }
-        },
-        eventDidMount: info => {
-          const { type, project, status, attendees } = info.event.extendedProps;
-          const tooltip = document.createElement('div');
-          tooltip.className = 'fc-tooltip';
-          tooltip.style.cssText = `
-            position: absolute;
-            background: rgba(15, 23, 42, 0.92);
-            color: white;
-            padding: 0.65rem 0.75rem;
-            border-radius: 0.75rem;
-            font-size: 0.75rem;
-            pointer-events: none;
-            transform: translate(-50%, -110%);
-            white-space: nowrap;
-            z-index: 9999;
-            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.4);
-          `;
-          tooltip.innerHTML = `
-            <strong>${info.event.title}</strong><br />
-            Proyecto: ${project}<br />
-            ${type === 'task' ? `Estatus: ${status}` : `Invitados: ${attendees}`}
-          `;
-
-          info.el.addEventListener('mouseenter', () => {
-            info.el.appendChild(tooltip);
-          });
-
-          info.el.addEventListener('mouseleave', () => {
-            tooltip.remove();
-          });
-        }
-      });
-
-      calendar.render();
-    }
-
-    function renderTimeline() {
-      const timeline = document.getElementById('timeline');
-      timeline.innerHTML = '';
-      const minDate = Math.min(...projects.map(p => new Date(p.start).getTime()));
-      const maxDate = Math.max(...projects.map(p => new Date(p.end).getTime()));
-      const range = maxDate - minDate;
-
-      projects.forEach(project => {
-        const row = document.createElement('div');
-        row.className = 'timeline-row';
-        const lead = findMember(project.leadId);
-        row.innerHTML = `
-          <h3>${project.name}</h3>
-          <p style="color: var(--color-muted); font-size: 0.9rem; margin: 0 0 0.75rem;">
-            Responsable: ${lead?.name ?? 'Sin asignar'} • ${project.company} • Presupuesto: $${project.budget.toLocaleString('es-MX')}<br />
-            ${formatDate(project.start)} → ${formatDate(project.end)}
-          </p>
-        `;
-
-        const track = document.createElement('div');
-        track.className = 'timeline-track';
-        tasks.filter(task => task.projectId === project.id).forEach((task, index) => {
-          const start = new Date(task.start).getTime();
-          const end = new Date(task.end).getTime();
-          const left = ((start - minDate) / range) * 100;
-          const width = ((end - start) / range) * 100;
-          const segment = document.createElement('div');
-          segment.className = 'timeline-segment';
-          segment.style.left = `${left}%`;
-          segment.style.width = `${Math.max(width, 8)}%`;
-          segment.style.background = index % 2 === 0 ? 'var(--color-primary)' : 'var(--color-secondary)';
-          segment.textContent = `${task.name}`;
-          track.appendChild(segment);
-        });
-
-        row.appendChild(track);
-        timeline.appendChild(row);
-      });
-    }
-
-    function renderStatus() {
-      const grid = document.getElementById('status-grid');
-      grid.innerHTML = '';
-      memberStatus.forEach(entry => {
-        const member = findMember(entry.memberId);
-        const card = document.createElement('article');
-        card.className = 'status-card';
-        card.innerHTML = `
-          <strong>${member?.name ?? 'Miembro'}</strong>
-          <span style="color: var(--color-muted);">${member?.role ?? ''}</span>
-          <span style="color: var(--color-muted); font-size: 0.85rem;">${entry.note}</span>
-        `;
-        const chip = document.createElement('span');
-        chip.className = 'status-chip';
-        chip.textContent = entry.status;
-        chip.style.background = statusColors[entry.status] ?? 'var(--color-muted)';
-        card.appendChild(chip);
-        const until = document.createElement('span');
-        until.style.color = 'var(--color-muted)';
-        until.style.fontSize = '0.75rem';
-        until.textContent = `Hasta: ${entry.until}`;
-        card.appendChild(until);
-        grid.appendChild(card);
-      });
-    }
-
-    function detectConflicts() {
-      const rows = [];
-      const itemsByMember = new Map();
-
-      const pushItem = (memberId, item) => {
-        if (!itemsByMember.has(memberId)) {
-          itemsByMember.set(memberId, []);
-        }
-        itemsByMember.get(memberId).push(item);
-      };
-
-      tasks.forEach(task => {
-        pushItem(task.assigneeId, {
-          label: `Tarea: ${task.name}`,
-          start: new Date(task.start),
-          end: new Date(task.end)
-        });
-      });
-
-      meetings.forEach(meeting => {
-        meeting.attendees.forEach(memberId => {
-          pushItem(memberId, {
-            label: `Reunión: ${meeting.title}`,
-            start: new Date(meeting.start),
-            end: new Date(meeting.end)
-          });
-        });
-      });
-
-      itemsByMember.forEach((items, memberId) => {
-        const sorted = items.sort((a, b) => a.start - b.start);
-        for (let i = 0; i < sorted.length; i++) {
-          const current = sorted[i];
-          const next = sorted[i + 1];
-          rows.push({
-            member: findMember(memberId)?.name ?? 'Sin asignar',
-            label: current.label,
-            start: formatDate(current.start),
-            end: formatDate(current.end),
-            conflict: next && current.end > next.start
-              ? `Empalma con ${next.label} (${formatDate(next.start)})`
-              : 'Sin conflicto'
-          });
-        }
-      });
-
-      const tbody = document.getElementById('agenda-conflicts');
-      tbody.innerHTML = '';
-      rows.forEach(row => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${row.member}</td>
-          <td>${row.label}</td>
-          <td>${row.start}</td>
-          <td>${row.end}</td>
-          <td class="${row.conflict !== 'Sin conflicto' ? 'conflict' : ''}">${row.conflict}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    renderTasks();
-    renderCalendar();
-    renderTimeline();
-    renderStatus();
-    detectConflicts();
-  </script>
+  renderTasks(); renderCalendar();
+</script>
 </body>
 </html>
