@@ -1,0 +1,10 @@
+/node_modules
+/dist
+/.turbo
+/src-tauri/target
+/src-tauri/gen
+.DS_Store
+*.log
+
+# Database generated at runtime
+**/portal.db
