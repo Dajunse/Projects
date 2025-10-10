@@ -1,0 +1,16 @@
+[
+  {
+    "section": "Administración Local",
+    "items": [
+      { "label": "Firewall HQ", "url": "https://192.168.10.1", "description": "Administración central" },
+      { "label": "NAS Principal", "url": "https://192.168.10.20", "description": "Almacenamiento y respaldos" }
+    ]
+  },
+  {
+    "section": "Red MX",
+    "items": [
+      { "label": "Firewall MX", "url": "https://10.0.0.1" },
+      { "label": "Switch MX-24", "url": "https://10.0.0.2" }
+    ]
+  }
+]

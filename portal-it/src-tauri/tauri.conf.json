@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Portal IT Portable",
+  "version": "0.1.0",
+  "identifier": "com.portal.it.portable",
+  "build": {
+    "beforeBuildCommand": "npm run build",
+    "beforeDevCommand": "npm run dev",
+    "devPath": "http://localhost:1420",
+    "distDir": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Portal IT Portable",
+        "width": 1280,
+        "height": 800,
+        "resizable": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["msi", "nsis", "app", "updater"],
+    "icon": ["icons/icon.ico"],
+    "resources": [
+      "../manuales",
+      "../formatos",
+      "../links.json"
+    ]
+  }
+}
